@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persistent Checkboxes</title>
+</head>
+<body>
+    <h2>TryHackMe Rooms Checklist</h2>
+    <ul>
+        <li><input type="checkbox" id="checkbox1"> <label for="checkbox1">Linux Fundamentals</label></li>
+        <li><input type="checkbox" id="checkbox2"> <label for="checkbox2">Passive Recon</label></li>
+        <li><input type="checkbox" id="checkbox3"> <label for="checkbox3">Google Dorking</label></li>
+    </ul>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            const checkboxes = document.querySelectorAll("input[type='checkbox']");
+
+            // Load saved state from the server
+            let response = await fetch("/");
+            let data = await response.json();
+
+            checkboxes.forEach((checkbox) => {
+                if (data[checkbox.id]) {
+                    checkbox.checked = true;
+                }
+
+                // Save state on change
+                checkbox.addEventListener("change", async function () {
+                    let saveData = {};
+                    saveData[checkbox.id] = checkbox.checked;
+                    await fetch("/save", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(saveData)
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
